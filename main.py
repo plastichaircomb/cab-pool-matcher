@@ -90,6 +90,8 @@ def students_for(cab):
     return matching
 
 
+
+
 def find_match():
     print("\n--- Seat preview ---")
     open_cabs = get_open_cabs()
@@ -100,6 +102,46 @@ def find_match():
         print(f"\n{cab.driver}: {cab.destination}, {cab.slot} ({len(picks)}/{cab.seats})")
         for request in picks:
             print(f"  {request}")
+
+
+
+def dispatch_cab():
+    open_cabs=get_open_cabs()
+    print(f"\nOpen cabs: {len(open_cabs)}")
+
+    for number,cab in enumerate(open_cabs,start=1):
+        print(f"  {number}. {cab}")
+
+    choice=input("Which cab to leave?: ").strip()
+
+    cab=None
+    if choice.isdigit() and 1<=int(choice)<=len(open_cabs):
+        cab=open_cabs[int(choice)-1]
+    else:
+        same_name=[]
+        for open_cab in open_cabs:
+            if open_cab.driver.lower()==choice.lower():
+                same_name.append(open_cab)
+
+        if len(same_name)==1:
+            cab=same_name[0]
+        elif len(same_name)>1:
+            print("Error: more than one cab driver has that name")
+            return
+
+    if cab is None:
+        print("Couldn't find that cab")
+        return
+
+    riders=students_for(cab)[:cab.seats]
+    for request in riders:
+        cab.passengers.append(request)
+        waiting.remove(request)
+    cab.left=True
+
+    print(f"\n{cab.driver} has left for {cab.destination} ({len(riders)}/{cab.seats})")
+    for request in riders:
+        print(f"  {request}")
 
 
 
@@ -129,6 +171,7 @@ MENU = {
     "1": ("Add a ride request", add_request),
     "2": ("View waiting students and cabs", show_all),
     "3": ("Find matches", find_match),
+    "4": ("Send off a cab",dispatch_cab)
 }
 
 
