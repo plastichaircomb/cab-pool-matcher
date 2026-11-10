@@ -1,4 +1,5 @@
-from models import RideRequest
+import json
+from models import RideRequest,Cab
 
 destinations = ["Delhi","Jaipur"]
 slots=["Morning","Afternoon","Evening","Night"]
@@ -6,12 +7,14 @@ slots=["Morning","Afternoon","Evening","Night"]
 waiting=[]
 cabs=[]
 
+
 def ask_name():
     while True:
         name=input("Name: ").strip()
         while not name:
             print("Name cannot be empty")
             name=input("Name: ").strip()
+        return name
 
 
 
@@ -48,12 +51,35 @@ def add_request():
 
 
 
+
+def load_cabs(filename):
+    try:
+        with open(filename) as file:
+            data=json.load(file)
+    except FileNotFoundError or json.JSONDecodeError:
+        print(f"No cabs found")
+        return []
+
+    loaded=[]
+    for item in data:
+        try:
+            cab=Cab(item["driver"], int(item["seats"]), item["destination"], item["slot"])
+        except (KeyError, ValueError, TypeError):
+            print(f"Skipping a cab")
+            continue    
+
+        loaded.append(cab)
+    return loaded
+
+
+
+
 def show_all():
-    print("\n Waiting students ")
+    print(f"\n--- Waiting students ({len(waiting)}) ---")
     for request in waiting:
         print(request)
 
-    print(" Cabs ")
+    print(f"\n--- Cabs ({len(cabs)}) ---")
     for cab in cabs:
         print(cab)
 
@@ -75,6 +101,7 @@ MENU = {
 
 
 def main():
+    cabs.extend(load_cabs("cabs.json"))
     while True:
         show_header()
         for key in MENU:
