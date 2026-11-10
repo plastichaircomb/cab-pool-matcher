@@ -73,6 +73,37 @@ def load_cabs(filename):
 
 
 
+def get_open_cabs():
+    open_cab=[]
+    for cab in cabs:
+        if not cab.left:
+            open_cab.append(cab)
+    return open_cab
+
+
+
+def students_for(cab):
+    matching=[]
+    for request in waiting:
+        if request.destination==cab.destination and request.slot==cab.slot:
+            matching.append(request)
+    return matching
+
+
+def find_match():
+    print("\n--- Seat preview ---")
+    open_cabs = get_open_cabs()
+    print(f"Open cabs: {len(open_cabs)}")
+
+    for cab in open_cabs:
+        picks = students_for(cab)[:cab.seats]
+        print(f"\n{cab.driver}: {cab.destination}, {cab.slot} ({len(picks)}/{cab.seats})")
+        for request in picks:
+            print(f"  {request}")
+
+
+
+
 
 def show_all():
     print(f"\n--- Waiting students ({len(waiting)}) ---")
@@ -84,20 +115,25 @@ def show_all():
         print(cab)
 
 
-def show_header():
-    open_cabs = 0
-    for cab in cabs:
-        if not cab.departed:
-            open_cabs += 1
 
+
+
+
+def show_header():
+    
     print("  CAB POOL MATCHER  ")
-    print(f"  Waiting: {len(waiting)}    Open cabs: {open_cabs}")
+    print(f"  Waiting: {len(waiting)}    Open cabs: {len(get_open_cabs())}")
 
 
 MENU = {
     "1": ("Add a ride request", add_request),
     "2": ("View waiting students and cabs", show_all),
+    "3": ("Find matches", find_match),
 }
+
+
+
+
 
 
 def main():
@@ -107,11 +143,11 @@ def main():
         for key in MENU:
             label = MENU[key][0]
             print(f"  [{key}] {label}")
-        print("  [3] Quit")
+        print("  [0] Quit")
 
         choice = input(" ").strip()
 
-        if choice == "3":
+        if choice == "0":
             print("Quitting application")
             break
         elif choice in MENU:
