@@ -183,6 +183,15 @@ def dispatch_trip():
     slot = ask_choice("Time slot (Morning/Afternoon/Evening/Night): ", slots)
 
     cab = find_open_cab(destination, slot)
+    if cab is None:
+         print(f"No open cab for {destination}, {slot}")
+         return
+
+    queue = queues.get((destination, slot), [])
+    if not queue:
+        print(f"Nobody is waiting for {destination}, {slot}")
+        return
+    
     send_off(cab)
 
 
