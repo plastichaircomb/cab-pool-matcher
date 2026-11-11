@@ -1,10 +1,11 @@
 import json
+import heapq
 from models import RideRequest,Cab
 
 destinations = ["Delhi","Jaipur"]
 slots=["Morning","Afternoon","Evening","Night"]
 
-waiting=[]
+queues={}
 cabs=[]
 
 
@@ -46,7 +47,10 @@ def add_request():
     year = ask_year()   
 
     request = RideRequest(name, destination, slot, year)
-    waiting.append(request)
+    trip=(destination,slot)
+    if trip not in queues:
+        queues[trip]=[]
+    heapq.heappush(queues[trip],(-year,request))
     print(f"Added: {request}")
 
 
@@ -73,6 +77,15 @@ def load_cabs(filename):
 
 
 
+def count_waiting():
+    total=0
+    for trip in queues:
+        total+=len(queues[trip])
+    return total
+
+
+
+
 def get_open_cabs():
     open_cab=[]
     for cab in cabs:
@@ -83,11 +96,11 @@ def get_open_cabs():
 
 
 def students_for(cab):
-    matching=[]
-    for request in waiting:
-        if request.destination==cab.destination and request.slot==cab.slot:
-            matching.append(request)
-    return matching
+    queue=queues.get((cab.destination,cab.slot),[])
+    ordered=[]
+    for entry in sorted(queue):
+        ordered.append(entry[-1])
+    return ordered
 
 
 
@@ -133,10 +146,13 @@ def dispatch_cab():
         print("Couldn't find that cab")
         return
 
-    riders=students_for(cab)[:cab.seats]
-    for request in riders:
-        cab.passengers.append(request)
-        waiting.remove(request)
+    queue=queues.get((cab.destination,cab.slot),[])
+    riders=[]
+    while queue and len(riders)<cab.seats:
+        entry=heapq.heappop(queue)
+        riders.append(entry[-1])
+
+    cab.passengers.extend(riders)
     cab.left=True
 
     print(f"\n{cab.driver} has left for {cab.destination} ({len(riders)}/{cab.seats})")
@@ -148,9 +164,10 @@ def dispatch_cab():
 
 
 def show_all():
-    print(f"\n--- Waiting students ({len(waiting)}) ---")
-    for request in waiting:
-        print(request)
+    print(f"\n--- Waiting students ({count_waiting()}) ---")
+    for trip in queues:
+        for entry in sorted(queues[trip]):
+            print(entry[-1])
 
     print(f"\n--- Cabs ({len(cabs)}) ---")
     for cab in cabs:
@@ -164,14 +181,14 @@ def show_all():
 def show_header():
     
     print("  CAB POOL MATCHER  ")
-    print(f"  Waiting: {len(waiting)}    Open cabs: {len(get_open_cabs())}")
+    print(f"  Waiting: {count_waiting()}    Open cabs: {len(get_open_cabs())}")
 
 
 MENU = {
     "1": ("Add a ride request", add_request),
     "2": ("View waiting students and cabs", show_all),
     "3": ("Find matches", find_match),
-    "4": ("Send off a cab",dispatch_cab)
+    "4": ("Dispatch cab",dispatch_cab)
 }
 
 
