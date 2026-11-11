@@ -1,19 +1,20 @@
 from datetime import datetime
 
 class RideRequest:
-    def _init_(self,name,destination,slot,year):
+    def __init__(self,name,destination,slot,year,order):
         self.name=name
         self.destination=destination
         self.slot=slot
         self.year=year
         self.request_time=datetime.now()
+        self.order=order
 
-    def _str_(self):
+    def __str__(self):
         return f"{self.name} (Year {self.year}) going to {self.destination}, {self.slot}"
 
 
 class Cab:
-    def _init_(self,driver,seats,destination,slot):
+    def __init__(self,driver,seats,destination,slot):
         self.driver=driver
         self.seats=seats
         self.left=False
@@ -21,6 +22,6 @@ class Cab:
         self.slot=slot
         self.passengers=[]
 
-    def _str_(self):
+    def __str__(self):
         status="Left" if self.left else "Available"
         return f"{self.driver} | {self.destination}, {self.slot} | {len(self.passengers)}/{self.seats} seats taken | {status}"

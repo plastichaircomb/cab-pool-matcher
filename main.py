@@ -7,7 +7,7 @@ slots=["Morning","Afternoon","Evening","Night"]
 
 queues={}
 cabs=[]
-
+next_order=1
 
 def ask_name():
     while True:
@@ -40,17 +40,20 @@ def ask_year():
 
 
 def add_request():
+    global next_order
     print("\n New ride request ")
     name = ask_name()
     destination = ask_choice("Destination (Delhi/Jaipur): ", destinations)
     slot = ask_choice("Time slot (Morning/Afternoon/Evening/Night): ", slots)
     year = ask_year()   
 
-    request = RideRequest(name, destination, slot, year)
+    request = RideRequest(name, destination, slot, year,next_order)
+    next_order+=1
+
     trip=(destination,slot)
     if trip not in queues:
         queues[trip]=[]
-    heapq.heappush(queues[trip],(-year,request))
+    heapq.heappush(queues[trip],(-year,request.order,request))
     print(f"Added: {request}")
 
 
