@@ -121,6 +121,23 @@ def find_match():
 
 
 
+def send_off(cab):
+    queue=queues.get((cab.destination,cab.slot),[])
+    riders=[]
+    while queue and len(riders)<cab.seats:
+            entry=heapq.heappop(queue)
+            riders.append(entry[-1])
+    
+    cab.passengers.extend(riders)
+    cab.left=True
+
+    
+    print(f"\n{cab.driver} has left for {cab.destination} ({len(riders)}/{cab.seats})")
+    for request in riders:
+        print(f"  {request}")
+
+
+
 def dispatch_cab():
     open_cabs=get_open_cabs()
     print(f"\nOpen cabs: {len(open_cabs)}")
@@ -149,20 +166,24 @@ def dispatch_cab():
         print("Couldn't find that cab")
         return
 
-    queue=queues.get((cab.destination,cab.slot),[])
-    riders=[]
-    while queue and len(riders)<cab.seats:
-        entry=heapq.heappop(queue)
-        riders.append(entry[-1])
-
-    cab.passengers.extend(riders)
-    cab.left=True
-
-    print(f"\n{cab.driver} has left for {cab.destination} ({len(riders)}/{cab.seats})")
-    for request in riders:
-        print(f"  {request}")
+    send_off(cab)
 
 
+def find_open_cab(destination,slot):
+    for cab in cabs:
+        if not cab.left and cab.destination==destination and cab.slot==slot:
+            return cab
+        return None
+
+    
+
+def dispatch_trip():
+    print("\n--- Dispatch by trip ---")
+    destination = ask_choice("Destination (Delhi/Jaipur): ", destinations)
+    slot = ask_choice("Time slot (Morning/Afternoon/Evening/Night): ", slots)
+
+    cab = find_open_cab(destination, slot)
+    send_off(cab)
 
 
 
@@ -179,8 +200,6 @@ def show_all():
 
 
 
-
-
 def show_header():
     
     print("  CAB POOL MATCHER  ")
@@ -191,8 +210,8 @@ MENU = {
     "1": ("Add a ride request", add_request),
     "2": ("View waiting students and cabs", show_all),
     "3": ("Find matches", find_match),
-    "4": ("Dispatch cab",dispatch_cab)
-}
+    "4": ("Send a specific cab",dispatch_cab),
+    "5": ("Send by trip",dispatch_trip)}
 
 
 
