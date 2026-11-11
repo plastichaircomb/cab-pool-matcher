@@ -56,6 +56,8 @@ def add_request():
     heapq.heappush(queues[trip],(-year,request.order,request))
     print(f"Added: {request}")
 
+    if find_open_cab(destination,slot) is None:
+        print(f"No open cab for {destination}, {slot} right now. You are on the waiting list.")
 
 
 
