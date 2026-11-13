@@ -125,6 +125,16 @@ def find_match():
 
 def send_off(cab):
     queue=queues.get((cab.destination,cab.slot),[])
+
+    filled=min(len(queue),cab.seats)
+    if filled<cab.seats/2:
+        answer = input(f" Cab would leave with only {filled}/{cab.seats} seats filled."
+                       f"Send it anyway? (y/n): ").strip().lower()
+        if answer not in ("y"):
+            print("Cab dispatch cancelled")
+            return
+
+        
     riders=[]
     while queue and len(riders)<cab.seats:
             entry=heapq.heappop(queue)
