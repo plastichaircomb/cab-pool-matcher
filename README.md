@@ -23,6 +23,7 @@ python main.py
 
 ## Menu
 
+| Option | What it does |
 |---|---|
 | 1 | Add a ride request (name, destination, time slot, year) |
 | 2 | See waiting and all cabs |
@@ -64,6 +65,7 @@ A counter number is used instead of using the timestamp of the request, because 
 ### 4. Lots of students (say 1,000)
 Here n is the number of students in a trip's queue and c is the number of cabs.
 
+| Operation | Time | Why |
 |---|---|---|
 | Add one request | O(log n) | `heappush` on that trip's heap.|
 | Add all 1,000 | O(n log n) | 1,000 pushes |
